@@ -1,6 +1,0 @@
-{
-  "name": "Wall of Signers v6",
-  "description": "A flexible component that displays a continuous, scrolling wall of names, fetched from a CSV file. Includes interactive play/pause controls.",
-  "requestFramePermissions": [],
-  "prompt": ""
-}
