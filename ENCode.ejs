@@ -1,33 +1,45 @@
 <!-- Just copy and paste the code below into the source editor of a text block where you’d like to display the Wall of Signers on an EN page -->
 <script>
-  const backgroundColor = "#ffffff";
+  const backgroundColor = "transparent";
 
-  const textColor = "#000000";
+  const textColor = "#ffffff";
+
+  const textShadowColor = "#000000";
 
   const listOfSignersCSV = `
-    Jane Q. Public, John Doe, Lila Miller, Samir Rahman, Katie L. Smith, Chen Yu,
-    Olga Petrova, Ahmed Hassan, Sarah Ng, David Kim, Emily Jones, Anil Mehta,
-    Gabriela Souza, Lucas Miller, Anna Chen, Daniel King, James Smith, William White,
-    Benjamin Thompson, Sophia Lee, Evelyn Roberts, Victoria Ross, Grace Clark,
-    Emily Scott, Samuel Anderson, Chloe Patel, Oliver Wright, Mia Davis, Noah Harris,
-    Ava Martin, Ethan Thompson, Isabella Lewis, Alexander Walker, Charlotte Young,
-    Michael Hall, Amelia Allen, Daniel Hill, Harper King, Lucas Green, Madison Baker,
-    Mason Nelson, Evelyn Carter, Logan Mitchell, Abigail Perez, Jacob Roberts, Sofia Turner,
-    Emma Collins, Liam Stewart, Olivia Morris, Elijah Murphy, Mia Cook, Oliver Reed,
-    Grace Cooper, Aiden Morgan, Chloe Bailey, Lucas Rivera, Madison Rogers, Ethan Peterson
-    `;
+  Jane Q. Public, John Doe, Lila Miller, Samir Rahman, Katie L. Smith, Chen Yu,
+  Olga Petrova, Ahmed Hassan, Sarah Ng, David Kim, Emily Jones, Anil Mehta,
+  Gabriela Souza, Lucas Miller, Anna Chen, Daniel King, James Smith, William White,
+  Benjamin Thompson, Sophia Lee, Evelyn Roberts, Victoria Ross, Grace Clark,
+  Emily Scott, Samuel Anderson, Chloe Patel, Oliver Wright, Mia Davis, Noah Harris,
+  Ava Martin, Ethan Thompson, Isabella Lewis, Alexander Walker, Charlotte Young,
+  Michael Hall, Amelia Allen, Daniel Hill, Harper King, Lucas Green, Madison Baker,
+  Mason Nelson, Evelyn Carter, Logan Mitchell, Abigail Perez, Jacob Roberts, Sofia Turner,
+  Emma Collins, Liam Stewart, Olivia Morris, Elijah Murphy, Mia Cook, Oliver Reed,
+  Grace Cooper, Aiden Morgan, Chloe Bailey, Lucas Rivera, Madison Rogers, Ethan Peterson
+`;
 </script>
 <h1 style="text-align: center">Wall of Signers &quot;Code Block&quot;</h1>
 <style type="text/css">
+  body:not(#en__pagebuilder) .page-backgroundImageOverlay {
+    display: grid !important;
+    grid-column: rpc / pc;
+    grid-row: page-start / content-footerSpacer-end;
+    z-index: 0 !important;
+  }
+
+  body:not(#en__pagebuilder) .page-backgroundImage figattribution {
+    display: none !important;
+  }
   [data-engrid-theme="engrid-ran3"]:not(
       #en__pagebuilder
     )[data-engrid-layout="leftleft1col"]
-    .page-backgroundImage:before {
+    .page-backgroundImageOverlay:before {
     background-color: #000000 !important;
     background-image: none !important;
   }
 
-  body:not(#en__pagebuilder) .page-backgroundImage {
+  body:not(#en__pagebuilder) .page-backgroundImageOverlay {
     position: sticky !important;
     top: 0 !important;
     height: 100vh !important;
@@ -35,7 +47,7 @@
 
   @media screen and (max-width: 878px) {
     [data-engrid-theme="engrid-ran3"]:not(#en__pagebuilder)
-      .page-backgroundImage,
+      .page-backgroundImageOverlay,
     [data-engrid-theme="engrid-ran3"]:not(#en__pagebuilder) #signers-wall-host {
       height: 200px !important;
       overflow: hidden !important;
@@ -57,11 +69,12 @@
     }
   })();
 
-  // Inject content into a shadow DOM within the .page-backgroundImage element
+  // Inject content into a shadow DOM within the .page-backgroundImageOverlay element
   document.addEventListener("DOMContentLoaded", () => {
-    const containerEl = document.querySelector(".page-backgroundImage");
+    const containerEl = document.querySelector(".page-backgroundImageOverlay");
     if (!containerEl) {
-      if (DEBUG) console.error(".page-backgroundImage element not found");
+      if (DEBUG)
+        console.error(".page-backgroundImageOverlay element not found");
       return;
     }
 
@@ -76,166 +89,168 @@
 
     // 3. Define CSS and HTML to be injected into the Shadow DOM
     const componentCSS = `
-      /* All styles are now scoped to the shadow DOM */
-      :host {
-        --background-color: ${backgroundColor};
-        --text-color: ${textColor};
-        --button-bg: rgba(30, 30, 30, 0.7);
-        --button-bg-hover: rgba(50, 50, 50, 0.8);
-      }
+    /* All styles are now scoped to the shadow DOM */
+    :host {
+      --background-color: ${backgroundColor};
+      --text-color: ${textColor};
+      --text-shadow-color: ${textShadowColor};
+      --button-bg: rgba(30, 30, 30, 0.7);
+      --button-bg-hover: rgba(50, 50, 50, 0.8);
+    }
 
+    .signers-wall {
+      width: 100%;
+      height: 100vh; /* Match the parent's height */
+      margin: 0;
+      box-sizing: border-box;
+      padding: 0;
+      background: var(--background-color);
+      display: flex;
+      flex-direction: column;
+      /* MODIFIED: Reverted from fixed/sticky back to relative */
+      position: relative;
+      box-shadow: 0 4px 32px rgba(0, 0, 0, 0.53);
+      color: var(--text-color);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+        'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji',
+        'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    }
+
+    .signers-list-container {
+      flex-grow: 1;
+      overflow: hidden;
+      position: relative;
+      padding: 0 30px;
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .signers-list {
+      font-family: inherit;
+      font-size: 1.1rem;
+      line-height: 2rem;
+      color: var(--text-color);
+      will-change: transform;
+      display: block;
+      min-width: 100%;
+      user-select: none;
+      margin: 0;
+      padding: 0;
+      column-width: 190px;
+      column-gap: 40px;
+    }
+
+    .signers-list.paused {
+      animation-play-state: paused !important;
+    }
+
+    .signers-list div {
+      break-inside: avoid;
+      margin-bottom: 16px;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      padding-left: 2px;
+      white-space: nowrap;
+      text-shadow: 1px 1px 2px var(--text-shadow-color);
+    }
+
+    .play-pause-btn {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: none;
+      background-color: var(--button-bg);
+      transition: background-color 0.2s;
+      color: white;
+      cursor: pointer;
+      outline: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+      font-family: inherit;
+      z-index: 10;
+    }
+
+    .play-pause-btn:hover,
+    .play-pause-btn:focus {
+      background-color: var(--button-bg-hover);
+      color: #fff;
+      outline: none;
+    }
+
+    .play-pause-btn svg {
+      width: 2rem;
+      height: 2rem;
+      fill: currentColor;
+      pointer-events: none;
+    }
+
+    @media (max-width: 878px) {
       .signers-wall {
-        width: 100%;
-        height: 100vh; /* Match the parent's height */
-        margin: 0;
-        box-sizing: border-box;
-        padding: 0;
-        background: var(--background-color);
-        display: flex;
-        flex-direction: column;
-        /* MODIFIED: Reverted from fixed/sticky back to relative */
-        position: relative;
-        box-shadow: 0 4px 32px rgba(0, 0, 0, 0.53);
-        color: var(--text-color);
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-          'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji',
-          'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+        height: 200px;
+        // height: auto;
+        // min-height: 50vh;
       }
-
       .signers-list-container {
-        flex-grow: 1;
-        overflow: hidden;
-        position: relative;
-        padding: 0 30px;
-        display: flex;
-        flex-direction: column;
-        cursor: pointer;
-        outline: none;
-      }
-
-      .signers-list {
-        font-family: inherit;
-        font-size: 1.1rem;
-        line-height: 2rem;
-        color: var(--text-color);
-        will-change: transform;
         display: block;
-        min-width: 100%;
-        user-select: none;
-        margin: 0;
-        padding: 0;
-        column-width: 190px;
-        column-gap: 40px;
+        padding: 0 8vw;
       }
-
-      .signers-list.paused {
-        animation-play-state: paused !important;
+      .signers-list {
+        column-width: 110px;
+        // column-gap: 16px;
       }
-
-      .signers-list div {
-        break-inside: avoid;
-        margin-bottom: 16px;
-        font-weight: 600;
-        letter-spacing: 0.01em;
-        padding-left: 2px;
-        white-space: nowrap;
-      }
-
       .play-pause-btn {
-        position: absolute;
-        bottom: 24px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 48px;
-        height: 48px;
-        border-radius: 50%;
-        border: none;
-        background-color: var(--button-bg);
-        transition: background-color 0.2s;
-        color: white;
-        cursor: pointer;
-        outline: none;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        user-select: none;
-        font-family: inherit;
-        z-index: 10;
+        font-size: 1rem;
+        top: 130px;
+        bottom: initial;
       }
+    }
 
-      .play-pause-btn:hover,
-      .play-pause-btn:focus {
-        background-color: var(--button-bg-hover);
-        color: #fff;
-        outline: none;
+    @media (prefers-reduced-motion: reduce) {
+      .signers-list {
+        animation: none !important;
       }
-
-      .play-pause-btn svg {
-        width: 2rem;
-        height: 2rem;
-        fill: currentColor;
-        pointer-events: none;
+      .play-pause-btn {
+        display: none !important;
       }
-
-      @media (max-width: 878px) {
-        .signers-wall {
-          height: 200px;
-          // height: auto;
-          // min-height: 50vh;
-        }
-        .signers-list-container {
-          display: block;
-          padding: 0 8vw;
-        }
-        .signers-list {
-          column-width: 110px;
-          // column-gap: 16px;
-        }
-        .play-pause-btn {
-          font-size: 1rem;
-          top: 130px;
-          bottom: initial;
-        }
+      .signers-list-container {
+        cursor: default;
       }
-
-      @media (prefers-reduced-motion: reduce) {
-        .signers-list {
-          animation: none !important;
-        }
-        .play-pause-btn {
-          display: none !important;
-        }
-        .signers-list-container {
-          cursor: default;
-        }
-      }
-    `;
+    }
+  `;
 
     const componentHTML = `
-      <div class="signers-wall">
-        <div
-          class="signers-list-container"
-          tabindex="0"
-          role="button"
-          aria-pressed="true"
-          aria-label="Toggle scrolling animation"
-        >
-          <div class="signers-list" id="signers-list"></div>
-        </div>
-        <button
-          id="scroll-toggle"
-          class="play-pause-btn"
-          aria-label="Pause scrolling"
-          title="Pause scrolling"
-        ></button>
+    <div class="signers-wall">
+      <div
+        class="signers-list-container"
+        tabindex="0"
+        role="button"
+        aria-pressed="true"
+        aria-label="Toggle scrolling animation"
+      >
+        <div class="signers-list" id="signers-list"></div>
       </div>
-    `;
+      <button
+        id="scroll-toggle"
+        class="play-pause-btn"
+        aria-label="Pause scrolling"
+        title="Pause scrolling"
+      ></button>
+    </div>
+  `;
 
     // 4. Inject the CSS and HTML into the shadow root
     shadowRoot.innerHTML = `
-      <style>${componentCSS}</style>
-      ${componentHTML}
-    `;
+    <style>${componentCSS}</style>
+    ${componentHTML}
+  `;
     if (DEBUG) console.log("Injected HTML and CSS into Shadow DOM.");
 
     // 5. Initialize the script, passing the shadowRoot for context
@@ -275,14 +290,14 @@
     }
 
     const svgPause = `
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-        <path fill-rule="evenodd" d="M6.75 5.25a.75.75 0 0 0-.75.75v12a.75.75 0 0 0 .75.75h3a.75.75 0 0 0 .75-.75V6a.75.75 0 0 0-.75-.75h-3zm7.5 0a.75.75 0 0 0-.75.75v12a.75.75 0 0 0 .75.75h3a.75.75 0 0 0 .75-.75V6a.75.75 0 0 0-.75-.75h-3z" clip-rule="evenodd"/>
-      </svg>`;
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path fill-rule="evenodd" d="M6.75 5.25a.75.75 0 0 0-.75.75v12a.75.75 0 0 0 .75.75h3a.75.75 0 0 0 .75-.75V6a.75.75 0 0 0-.75-.75h-3zm7.5 0a.75.75 0 0 0-.75.75v12a.75.75 0 0 0 .75.75h3a.75.75 0 0 0 .75-.75V6a.75.75 0 0 0-.75-.75h-3z" clip-rule="evenodd"/>
+    </svg>`;
 
     const svgPlay = `
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-        <path fill-rule="evenodd" d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.647c1.295.742 1.295 2.545 0 3.286L7.279 20.99c-1.25.717-2.779-.217-2.779-1.643V5.653z" clip-rule="evenodd"/>
-      </svg>`;
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path fill-rule="evenodd" d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.647c1.295.742 1.295 2.545 0 3.286L7.279 20.99c-1.25.717-2.779-.217-2.779-1.643V5.653z" clip-rule="evenodd"/>
+    </svg>`;
 
     function updateToggleBtn() {
       toggleBtn.innerHTML = isPlaying ? svgPause : svgPlay;
@@ -370,11 +385,11 @@
       }
 
       styleSheet.textContent = `
-        @keyframes scroll-up-infinite {
-          0% { transform: translateY(0); }
-          100% { transform: translateY(-${scrollDistance}px); }
-        }
-      `;
+      @keyframes scroll-up-infinite {
+        0% { transform: translateY(0); }
+        100% { transform: translateY(-${scrollDistance}px); }
+      }
+    `;
 
       if (!prefersReduced) {
         listEl.style.animation = `scroll-up-infinite ${duration}s linear infinite`;
